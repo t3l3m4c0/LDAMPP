@@ -38,3 +38,22 @@ install_packages xclip mariadb-server apache2 php phpmyadmin
 configure_phpmyadmin
 
 echo "Instalación y configuración completadas."
+
+echo "Que usuario quieres utilizar en PHPmyAdmin?."
+read usuario
+echo "Que password quieres utilizar en PHPmyAdmin?."
+read password
+
+# Verificar si el usuario ya existe
+if ! mysql -u root -e "SELECT user FROM mysql.user WHERE user='$usuario';" | grep -q $usuario; then
+mysql -u root <<EOF
+CREATE USER $usuario@localhost IDENTIFIED BY '$password';
+GRANT ALL PRIVILEGES ON *.* TO $usuario@localhost WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+EOF
+echo " Se ha creado el usuario $usuario con la contraseña $password para el acceso a http://localhost/phpmyadmin"
+else
+echo "El usuario '$usuario' ya existe en MySQL."
+fi
+
+
